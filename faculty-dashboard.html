@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Faculty Analytics Dashboard</title>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Poppins, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.navbar {
+    background: #243447;
+    color: white;
+    padding: 16px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.navbar button {
+    border: none;
+    color: white;
+    padding: 9px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.back-btn {
+    background: #6c757d;
+}
+
+.logout-btn {
+    background: #e74c3c;
+}
+
+.container {
+    width: 92%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+}
+
+h1,
+h2,
+h3 {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-actions {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+
+    <div>
+        <strong>Assignment Management System</strong>
+        <div id="welcomeUser"></div>
+    </div>
+
+    <div class="nav-actions">
+        <button class="back-btn" onclick="goBack()">
+            Back
+        </button>
+
+        <button class="logout-btn" onclick="logout()">
+            Logout
+        </button>
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h1>Faculty Analytics Dashboard</h1>
+        <p>Student submission and marks performance.</p>
+
+        <div class="chart-grid">
+
+            <div class="chart-card">
+                <h3>Student Submission Performance</h3>
+
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Student Marks Performance</h3>
+
+                <div class="chart-container">
+                    <canvas id="marksPerformanceChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+"use strict";
+
+const USERS_KEY = "ams_users";
+const ASSIGNMENTS_KEY = "ams_assignments";
+const SUBMISSIONS_KEY = "ams_submissions";
+const CURRENT_USER_KEY = "ams_currentUser";
+
+let performanceChartInstance = null;
+let marksPerformanceChartInstance = null;
+
+function getCurrentUser() {
+
+    const data = localStorage.getItem(CURRENT_USER_KEY);
+
+    if (!data) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(data);
+    } catch (error) {
+        localStorage.removeItem(CURRENT_USER_KEY);
+        return null;
+    }
+}
+
+function getUsers() {
+
+    try {
+        const users = JSON.parse(
+            localStorage.getItem(USERS_KEY) || "[]"
+        );
+
+        return Array.isArray(users) ? users : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function getAssignments() {
+
+    try {
+        const assignments = JSON.parse(
+            localStorage.getItem(ASSIGNMENTS_KEY) || "[]"
+        );
+
+        return Array.isArray(assignments) ? assignments : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function getSubmissions() {
+
+    try {
+        const submissions = JSON.parse(
+            localStorage.getItem(SUBMISSIONS_KEY) || "[]"
+        );
+
+        return Array.isArray(submissions) ? submissions : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function updateFacultyCharts() {
+
+    const users = getUsers();
+    const assignments = getAssignments();
+    const submissions = getSubmissions();
+
+    const students = users.filter(function(user) {
+        return user.role === "student";
+    });
+
+    const studentsSubmittedCount = students.filter(function(student) {
+        return submissions.some(function(submission) {
+            return String(submission.studentId) === String(student.id);
+        });
+    }).length;
+
+    const studentsNotSubmittedCount =
+        students.length - studentsSubmittedCount;
+
+    if (performanceChartInstance) {
+        performanceChartInstance.destroy();
+    }
+
+    if (marksPerformanceChartInstance) {
+        marksPerformanceChartInstance.destroy();
+    }
+
+    const performanceCanvas =
+        document.getElementById("performanceChart");
+
+    if (performanceCanvas) {
+
+        performanceChartInstance =
+            new Chart(performanceCanvas, {
+
+                type: "bar",
+
+                data: {
+                    labels: [
+                        "Submitted",
+                        "Not Submitted"
+                    ],
+
+                    datasets: [{
+                        label: "Number of Students",
+
+                        data: [
+                            studentsSubmittedCount,
+                            studentsNotSubmittedCount
+                        ],
+
+                        borderWidth: 1
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+    }
+
+    const studentMarks = students.map(function(student) {
+
+        const marks = submissions
+            .filter(function(submission) {
+
+                return String(submission.studentId) ===
+                    String(student.id) &&
+
+                    submission.marks !== null &&
+                    submission.marks !== undefined &&
+                    submission.marks !== "" &&
+                    !Number.isNaN(Number(submission.marks));
+            })
+
+            .map(function(submission) {
+                return Number(submission.marks);
+            });
+
+        if (marks.length === 0) {
+            return null;
+        }
+
+        return marks.reduce(function(total, mark) {
+            return total + mark;
+        }, 0) / marks.length;
+    });
+
+    const markedStudents = [];
+
+    students.forEach(function(student, index) {
+
+        if (studentMarks[index] !== null) {
+
+            const average =
+                Number(studentMarks[index].toFixed(1));
+
+            const category =
+                average >= 60 ? "High" : "Low";
+
+            markedStudents.push({
+                label:
+                    (student.name || student.username) +
+                    " (" + category + ")",
+
+                value: average
+            });
+        }
+    });
+
+    const marksCanvas =
+        document.getElementById("marksPerformanceChart");
+
+    if (marksCanvas) {
+
+        marksPerformanceChartInstance =
+            new Chart(marksCanvas, {
+
+                type: "pie",
+
+                data: {
+
+                    labels: markedStudents.map(
+                        function(item) {
+                            return item.label;
+                        }
+                    ),
+
+                    datasets: [{
+                        data: markedStudents.map(
+                            function(item) {
+                                return item.value;
+                            }
+                        ),
+
+                        borderWidth: 1
+                    }]
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+                            position: "right"
+                        },
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                label:
+                                    function(context) {
+
+                                        return context.label +
+                                            ": " +
+                                            context.raw +
+                                            " marks average";
+                                    }
+                            }
+                        }
+                    }
+                }
+            });
+    }
+}
+
+function goBack() {
+    window.location.href =
+        "index.html";
+}
+
+function logout() {
+
+    localStorage.removeItem(
+        CURRENT_USER_KEY
+    );
+
+    window.location.href =
+        "index.html";
+}
+
+const user = getCurrentUser();
+
+if (!user || user.role !== "faculty") {
+
+    alert("Please login as faculty to view the dashboard.");
+
+    window.location.href =
+        "index.html";
+
+} else {
+
+    document.getElementById(
+        "welcomeUser"
+    ).textContent =
+        user.username + " (faculty)";
+
+    updateFacultyCharts();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,4859 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Assignment Management System</title>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Montserrat:wght@100..900&family=Nunito:wght@200..1000&family=Pacifico&family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Quicksand:wght@300..700&family=Raleway:wght@100..900&display=swap"
+    rel="stylesheet"
+>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Poppins, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.container {
+    width: 92%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+h1,
+h2,
+h3 {
+    margin-bottom: 15px;
+}
+
+.navbar {
+    background: #243447;
+    color: white;
+    padding: 16px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.navbar button {
+    background: #e74c3c;
+    border: none;
+    color: white;
+    padding: 9px 16px;
+    border-radius: 7px;
+}
+
+.dashboard-nav-btn {
+    background: #2d7ff9 !important;
+}
+
+.login-box {
+    width: 400px;
+    max-width: 92%;
+    margin: 70px auto;
+}
+
+.role-switch {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #e9edf2;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.role-switch input {
+    display: none;
+}
+
+.role-switch label {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #667085;
+    transition: color 0.25s ease;
+    user-select: none;
+}
+
+.role-switch .slider {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    background: #2d7ff9;
+    border-radius: 7px;
+    transition: transform 0.25s ease;
+    z-index: 1;
+}
+
+.role-switch.faculty .slider {
+    transform: translateX(100%);
+}
+
+.role-switch.student label[for="roleStudent"],
+.role-switch.faculty label[for="roleFaculty"] {
+    color: white;
+}
+
+.demo-box {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #f4f7fb;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+}
+
+.primary-btn {
+    background: #2d7ff9;
+    color: white;
+    border: none;
+    padding: 10px 17px;
+    border-radius: 7px;
+    transition: all 0.3s ease;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    background-color: #052d69;
+}
+
+.success-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 7px;
+}
+
+.warning-btn {
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 7px;
+}
+
+.danger-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 7px;
+}
+
+.secondary-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 7px;
+}
+
+.export-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.excel-btn {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+
+.excel-btn:hover {
+    background: #157347;
+}
+
+.primary-btn:disabled,
+.success-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.error {
+    color: #dc3545;
+    margin-top: 10px;
+}
+
+.success {
+    color: #198754;
+    margin-top: 10px;
+}
+
+.subject-section {
+    margin-bottom: 20px;
+}
+
+.subject-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.subject-tab {
+    background: #eef2f7;
+    color: #243447;
+    border: 1px solid #d7dee7;
+    padding: 9px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subject-tab:hover {
+    background: #dfe8f5;
+}
+
+.subject-tab.active {
+    background: #2d7ff9;
+    color: white;
+    border-color: #2d7ff9;
+}
+
+.add-subject-btn {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.add-subject-btn:hover {
+    background: #157347;
+}
+
+.subject-empty {
+    margin-top: 15px;
+}
+
+.assignment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.assignment-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.assignment-card p {
+    margin: 8px 0;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.open {
+    background: #d4edda;
+    color: #155724;
+}
+
+.closed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.deadline {
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th,
+td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background: #243447;
+    color: white;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.table-wrapper table {
+    min-width: 850px;
+}
+
+.table-wrapper td,
+.table-wrapper th {
+    vertical-align: middle;
+}
+
+.table-wrapper input[type="file"] {
+    max-width: 220px;
+}
+
+.table-wrapper .actions {
+    margin-top: 0;
+}
+
+.student-badge {
+    display: inline-block;
+    background: #eef4ff;
+    color: #2457a6;
+    padding: 5px 9px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.no-data {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.pdf-name {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #555;
+    word-break: break-word;
+}
+
+.analytics-dashboard {
+    margin-bottom: 25px;
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.chart-container {
+    position: relative;
+    height: 350px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selected-subject-title {
+    margin-top: 10px;
+    color: #2d7ff9;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-actions {
+        width: 100%;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="loginPage">
+
+    <div class="card login-box">
+
+        <h1>
+            Student Assignment Management System
+        </h1>
+
+        <h3>
+            Login
+        </h3>
+
+        <form id="loginForm">
+
+            <div class="role-switch student" id="roleSwitch">
+
+                <div class="slider"></div>
+
+                <input
+                    type="radio"
+                    id="roleStudent"
+                    name="loginRole"
+                    value="student"
+                    checked
+                >
+
+                <label for="roleStudent">
+                    Student
+                </label>
+
+                <input
+                    type="radio"
+                    id="roleFaculty"
+                    name="loginRole"
+                    value="faculty"
+                >
+
+                <label for="roleFaculty">
+                    Faculty
+                </label>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="username" style="color: rgb(2, 2, 49);">
+                    Username
+                </label>
+
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="e.g. student1"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="password" style="color: rgb(2, 2, 49);">
+                    Password
+                </label>
+
+                <input
+                    id="password"
+                    type="password"
+                    required
+                >
+
+            </div>
+
+            <button class="primary-btn" type="submit">
+                Login
+            </button>
+
+            <p id="loginMessage"></p>
+
+        </form>
+
+        <hr style="margin:20px 0">
+
+        <div class="demo-box" style="display:none;">
+            <strong>Demo Login:</strong>
+            <div id="demoCredentials"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<div id="appPage" class="hidden">
+
+    <div class="navbar">
+
+        <div>
+
+            <strong>
+                Assignment Management System
+            </strong>
+
+            <div id="welcomeUser"></div>
+
+        </div>
+
+        <div class="nav-actions">
+
+            <button
+                id="viewDashboardBtn"
+                class="dashboard-nav-btn hidden"
+                onclick="viewFacultyDashboard()"
+            >
+                View Dashboard
+            </button>
+
+            <button onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+    <div
+        id="facultyDashboard"
+        class="container hidden"
+    >
+
+        <div id="facultyAnalyticsSection" class="analytics-dashboard hidden">
+
+            <div class="card">
+
+                <h2>
+                    Faculty Dashboard
+                </h2>
+
+                <p>
+                    Student submission and marks performance.
+                </p>
+
+                <p
+                    id="facultySelectedSubject"
+                    class="selected-subject-title"
+                ></p>
+
+                <div class="chart-grid">
+
+                    <div class="chart-card">
+
+                        <h3>
+                            Student Submission Performance
+                        </h3>
+
+                        <div class="chart-container">
+
+                            <canvas id="performanceChart"></canvas>
+
+                        </div>
+
+                    </div>
+
+                    <div class="chart-card">
+
+                        <h3>
+                            Student Marks Performance
+                        </h3>
+
+                        <div class="chart-container">
+
+                            <canvas id="marksPerformanceChart"></canvas>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <button
+                class="primary-btn"
+                onclick="showCreateAssignment()"
+            >
+                Post New Assignment
+            </button>
+
+        </div>
+
+        <div
+            id="createAssignmentCard"
+            class="card hidden"
+        >
+
+            <h3 id="assignmentFormTitle">
+                Post Assignment
+            </h3>
+
+            <form id="assignmentForm">
+
+                <input
+                    type="hidden"
+                    id="editAssignmentId"
+                >
+
+                <div class="form-group">
+
+                    <label>
+                        Subject
+                    </label>
+
+                    <select
+                        id="assignmentSubject"
+                        required
+                    ></select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Assignment Title
+                    </label>
+
+                    <input
+                        id="assignmentTitle"
+                        type="text"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Description
+                    </label>
+
+                    <input
+                        id="assignmentDescription"
+                        type="text"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                        Deadline
+                    </label>
+
+                    <input
+                        id="assignmentDeadline"
+                        type="datetime-local"
+                        required
+                    >
+
+                </div>
+
+                <div class="actions">
+
+                    <button
+                        class="success-btn"
+                        type="submit"
+                    >
+                        Save Assignment
+                    </button>
+
+                    <button
+                        class="secondary-btn"
+                        type="button"
+                        onclick="cancelAssignmentForm()"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+                <p id="assignmentMessage"></p>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <div class="subject-section">
+
+                <h3>
+                    Subjects
+                </h3>
+
+                <div
+                    class="subject-tabs"
+                    id="facultySubjectTabs"
+                ></div>
+
+                <div class="export-section" style="margin-top:15px;">
+                    <strong id="facultyAssignmentTableTitle">
+                        Assignments
+                    </strong>
+                    <button
+                        class="excel-btn"
+                        onclick="downloadAssignmentsExcel()"
+                    >
+                        Download Subject Excel
+                    </button>
+                </div>
+
+            </div>
+
+            <div id="facultyAssignments"></div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="export-section">
+
+                <h3>
+                    Student Submissions
+                </h3>
+
+                <button
+                    class="excel-btn"
+                    onclick="downloadSubmissionsExcel()"
+                >
+                    Download
+                </button>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Student</th>
+                            <th>Username</th>
+                            <th>Subject</th>
+                            <th>Assignment</th>
+                            <th>Submitted At</th>
+                            <th>PDF</th>
+                            <th>Marks</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="submissionTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div
+        id="studentDashboard"
+        class="container hidden"
+    >
+
+        <div class="card">
+
+            <h2>
+                Student Dashboard
+            </h2>
+
+            <p>
+                View assignments and submit your PDF before the deadline.
+            </p>
+
+            <p
+                id="studentSelectedSubject"
+                class="selected-subject-title"
+            ></p>
+
+        </div>
+
+        <div class="card">
+
+            <div class="subject-section">
+
+                <h3>
+                    Subjects
+                </h3>
+
+                <div
+                    class="subject-tabs"
+                    id="studentSubjectTabs"
+                ></div>
+
+                <div class="export-section" style="margin-top:15px;">
+                    <strong id="studentAssignmentTableTitle">
+                        Assignments
+                    </strong>
+                    <button
+                        class="excel-btn"
+                        onclick="downloadAssignmentsExcel()"
+                    >
+                        Download Subject Excel
+                    </button>
+                </div>
+
+            </div>
+
+            <div
+                id="studentAssignments"
+                class="table-wrapper"
+            ></div>
+
+        </div>
+
+        <div class="card">
+
+            <h3>
+                My Submissions
+            </h3>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Assignment</th>
+                            <th>Subject</th>
+                            <th>Submitted At</th>
+                            <th>Marks</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="mySubmissionTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+"use strict";
+
+const USERS_KEY = "ams_users";
+const ASSIGNMENTS_KEY = "ams_assignments";
+const SUBJECTS_KEY = "ams_subjects";
+const SUBMISSIONS_KEY = "ams_submissions";
+const CURRENT_USER_KEY = "ams_currentUser";
+
+let currentSubject = "All";
+
+const PDF_DB_NAME = "AssignmentManagementPDFDB";
+const PDF_DB_VERSION = 1;
+const PDF_STORE_NAME = "pdfFiles";
+
+function openPDFDatabase() {
+
+    return new Promise(function(resolve, reject) {
+
+        const request = indexedDB.open(
+            PDF_DB_NAME,
+            PDF_DB_VERSION
+        );
+
+        request.onupgradeneeded = function(event) {
+
+            const db = event.target.result;
+
+            if (!db.objectStoreNames.contains(PDF_STORE_NAME)) {
+
+                db.createObjectStore(
+                    PDF_STORE_NAME,
+                    { keyPath: "id" }
+                );
+
+            }
+
+        };
+
+        request.onsuccess = function(event) {
+            resolve(event.target.result);
+        };
+
+        request.onerror = function() {
+            reject(request.error);
+        };
+
+    });
+
+}
+
+function savePDFToDatabase(submissionId, file) {
+
+    return openPDFDatabase().then(function(db) {
+
+        return new Promise(function(resolve, reject) {
+
+            const transaction = db.transaction(
+                [PDF_STORE_NAME],
+                "readwrite"
+            );
+
+            const store =
+                transaction.objectStore(PDF_STORE_NAME);
+
+            store.put({
+                id: String(submissionId),
+                file: file
+            });
+
+            transaction.oncomplete = function() {
+                db.close();
+                resolve();
+            };
+
+            transaction.onerror = function() {
+                db.close();
+                reject(transaction.error);
+            };
+
+        });
+
+    });
+
+}
+
+function getPDFFromDatabase(submissionId) {
+
+    return openPDFDatabase().then(function(db) {
+
+        return new Promise(function(resolve, reject) {
+
+            const transaction = db.transaction(
+                [PDF_STORE_NAME],
+                "readonly"
+            );
+
+            const store =
+                transaction.objectStore(PDF_STORE_NAME);
+
+            const request =
+                store.get(String(submissionId));
+
+            request.onsuccess = function() {
+
+                db.close();
+
+                resolve(
+                    request.result
+                        ? request.result.file
+                        : null
+                );
+
+            };
+
+            request.onerror = function() {
+
+                db.close();
+
+                reject(request.error);
+
+            };
+
+        });
+
+    });
+
+}
+
+function deletePDFFromDatabase(submissionId) {
+
+    return openPDFDatabase().then(function(db) {
+
+        return new Promise(function(resolve, reject) {
+
+            const transaction = db.transaction(
+                [PDF_STORE_NAME],
+                "readwrite"
+            );
+
+            const store =
+                transaction.objectStore(PDF_STORE_NAME);
+
+            store.delete(String(submissionId));
+
+            transaction.oncomplete = function() {
+
+                db.close();
+
+                resolve();
+
+            };
+
+            transaction.onerror = function() {
+
+                db.close();
+
+                reject(transaction.error);
+
+            };
+
+        });
+
+    });
+
+}
+
+async function migrateLegacyPDFs() {
+
+    const submissions = getSubmissions();
+
+    let changed = false;
+
+    for (const submission of submissions) {
+
+        if (submission.fileData && !submission.hasPDF) {
+
+            try {
+
+                const parts =
+                    submission.fileData.split(",");
+
+                if (parts.length < 2) {
+                    continue;
+                }
+
+                const base64Data =
+                    parts.slice(1).join(",");
+
+                const header = parts[0];
+
+                const mimeMatch =
+                    header.match(/data:(.*?);base64/);
+
+                const mimeType =
+                    mimeMatch
+                        ? mimeMatch[1]
+                        : "application/pdf";
+
+                const byteCharacters =
+                    atob(base64Data);
+
+                const byteNumbers =
+                    new Uint8Array(
+                        byteCharacters.length
+                    );
+
+                for (
+                    let i = 0;
+                    i < byteCharacters.length;
+                    i++
+                ) {
+
+                    byteNumbers[i] =
+                        byteCharacters.charCodeAt(i);
+
+                }
+
+                const blob =
+                    new Blob(
+                        [byteNumbers],
+                        { type: mimeType }
+                    );
+
+                await savePDFToDatabase(
+                    submission.id,
+                    blob
+                );
+
+                submission.hasPDF = true;
+                submission.pdfId =
+                    String(submission.id);
+
+                delete submission.fileData;
+
+                changed = true;
+
+            } catch (error) {
+
+                console.error(
+                    "Legacy PDF migration failed:",
+                    error
+                );
+
+            }
+
+        }
+
+    }
+
+    if (changed) {
+        saveSubmissions(submissions);
+    }
+
+}
+
+const defaultUsers = [
+
+    {
+        id: 1,
+        username: "student1",
+        password: "1234",
+        role: "student",
+        name: "Student One"
+    },
+
+    {
+        id: 2,
+        username: "student2",
+        password: "1234",
+        role: "student",
+        name: "Student Two"
+    },
+
+    {
+        id: 3,
+        username: "student3",
+        password: "1234",
+        role: "student",
+        name: "Student Three"
+    },
+
+    {
+        id: 4,
+        username: "student4",
+        password: "1234",
+        role: "student",
+        name: "Student Four"
+    },
+
+    {
+        id: 5,
+        username: "student5",
+        password: "1234",
+        role: "student",
+        name: "Student Five"
+    },
+
+    {
+        id: 6,
+        username: "student6",
+        password: "1234",
+        role: "student",
+        name: "Student Six"
+    },
+
+    {
+        id: 7,
+        username: "student7",
+        password: "1234",
+        role: "student",
+        name: "Student Seven"
+    },
+
+    {
+        id: 8,
+        username: "faculty",
+        password: "1234",
+        role: "faculty",
+        name: "Faculty"
+    }
+
+];
+
+function initializeStorage() {
+
+    let users = [];
+
+    try {
+
+        users =
+            JSON.parse(
+                localStorage.getItem(USERS_KEY) || "[]"
+            );
+
+        if (!Array.isArray(users)) {
+            users = [];
+        }
+
+    } catch (error) {
+
+        users = [];
+
+    }
+
+    defaultUsers.forEach(function(demoUser) {
+
+        const index =
+            users.findIndex(function(user) {
+
+                return String(
+                    user.username || ""
+                ).toLowerCase() ===
+                demoUser.username.toLowerCase();
+
+            });
+
+        if (index === -1) {
+
+            users.push(demoUser);
+
+        } else {
+
+            users[index] = {
+                ...users[index],
+                ...demoUser
+            };
+
+        }
+
+    });
+
+    localStorage.setItem(
+        USERS_KEY,
+        JSON.stringify(users)
+    );
+
+    if (
+        localStorage.getItem(ASSIGNMENTS_KEY) === null
+    ) {
+
+        localStorage.setItem(
+            ASSIGNMENTS_KEY,
+            JSON.stringify([])
+        );
+
+    }
+
+    if (
+        localStorage.getItem(SUBMISSIONS_KEY) === null
+    ) {
+
+        localStorage.setItem(
+            SUBMISSIONS_KEY,
+            JSON.stringify([])
+        );
+
+    }
+
+    if (
+        localStorage.getItem(SUBJECTS_KEY) === null
+    ) {
+
+        localStorage.setItem(
+            SUBJECTS_KEY,
+            JSON.stringify(["General"])
+        );
+
+    }
+
+    const subjects = getSubjects();
+    const assignments = getAssignments();
+
+    let changedAssignments = false;
+
+    assignments.forEach(function(assignment) {
+
+        if (!assignment.subject) {
+
+            assignment.subject = "General";
+
+            changedAssignments = true;
+
+        }
+
+        if (
+            !subjects.some(function(subject) {
+                return normalizeSubject(subject) ===
+                    normalizeSubject(assignment.subject);
+            })
+        ) {
+
+            subjects.push(assignment.subject);
+
+        }
+
+    });
+
+    if (changedAssignments) {
+        saveAssignments(assignments);
+    }
+
+    saveSubjects(subjects);
+
+}
+
+function getUsers() {
+
+    try {
+
+        const users =
+            JSON.parse(
+                localStorage.getItem(USERS_KEY) || "[]"
+            );
+
+        return Array.isArray(users)
+            ? users
+            : [];
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+function getAssignments() {
+
+    try {
+
+        const assignments =
+            JSON.parse(
+                localStorage.getItem(ASSIGNMENTS_KEY) || "[]"
+            );
+
+        return Array.isArray(assignments)
+            ? assignments
+            : [];
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+function getSubjects() {
+
+    try {
+
+        const subjects =
+            JSON.parse(
+                localStorage.getItem(SUBJECTS_KEY) || "[]"
+            );
+
+        return Array.isArray(subjects)
+            ? subjects
+            : [];
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+function getSubmissions() {
+
+    try {
+
+        const submissions =
+            JSON.parse(
+                localStorage.getItem(SUBMISSIONS_KEY) || "[]"
+            );
+
+        return Array.isArray(submissions)
+            ? submissions
+            : [];
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+function saveSubjects(subjects) {
+
+    localStorage.setItem(
+        SUBJECTS_KEY,
+        JSON.stringify(subjects)
+    );
+
+}
+
+function saveAssignments(assignments) {
+
+    localStorage.setItem(
+        ASSIGNMENTS_KEY,
+        JSON.stringify(assignments)
+    );
+
+}
+
+function saveSubmissions(submissions) {
+
+    localStorage.setItem(
+        SUBMISSIONS_KEY,
+        JSON.stringify(submissions)
+    );
+
+}
+
+function normalizeSubject(subject) {
+
+    return String(subject || "General")
+        .trim()
+        .toLowerCase();
+
+}
+
+function getAssignmentSubject(assignment) {
+
+    return String(
+        assignment && assignment.subject
+            ? assignment.subject
+            : "General"
+    ).trim();
+
+}
+
+function assignmentMatchesSubject(
+    assignment,
+    subject
+) {
+
+    if (subject === "All") {
+        return true;
+    }
+
+    return normalizeSubject(
+        getAssignmentSubject(assignment)
+    ) === normalizeSubject(subject);
+
+}
+
+function getAssignmentsForCurrentSubject() {
+
+    const assignments = getAssignments();
+
+    return assignments.filter(function(assignment) {
+
+        return assignmentMatchesSubject(
+            assignment,
+            currentSubject
+        );
+
+    });
+
+}
+
+function getSubmissionsForCurrentSubject() {
+
+    const submissions = getSubmissions();
+    const assignments = getAssignments();
+
+    return submissions.filter(function(submission) {
+
+        const assignment =
+            assignments.find(function(item) {
+
+                return String(item.id) ===
+                    String(submission.assignmentId);
+
+            });
+
+        if (!assignment) {
+            return false;
+        }
+
+        return assignmentMatchesSubject(
+            assignment,
+            currentSubject
+        );
+
+    });
+
+}
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+function getCurrentUser() {
+
+    const data =
+        localStorage.getItem(CURRENT_USER_KEY);
+
+    if (!data) {
+        return null;
+    }
+
+    try {
+
+        return JSON.parse(data);
+
+    } catch (error) {
+
+        localStorage.removeItem(
+            CURRENT_USER_KEY
+        );
+
+        return null;
+
+    }
+
+}
+
+initializeStorage();
+
+migrateLegacyPDFs().catch(function(error) {
+
+    console.error(
+        "PDF migration error:",
+        error
+    );
+
+});
+
+const roleSwitch =
+    document.getElementById("roleSwitch");
+
+const roleStudent =
+    document.getElementById("roleStudent");
+
+const roleFaculty =
+    document.getElementById("roleFaculty");
+
+const usernameInput =
+    document.getElementById("username");
+
+const demoCredentials =
+    document.getElementById("demoCredentials");
+
+let performanceChartInstance = null;
+let marksPerformanceChartInstance = null;
+
+function updateRoleSlider() {
+
+    const selectedRole =
+        document.querySelector(
+            'input[name="loginRole"]:checked'
+        ).value;
+
+    roleSwitch.classList.toggle(
+        "student",
+        selectedRole === "student"
+    );
+
+    roleSwitch.classList.toggle(
+        "faculty",
+        selectedRole === "faculty"
+    );
+
+    if (selectedRole === "faculty") {
+
+        usernameInput.placeholder =
+            "e.g. faculty";
+
+        demoCredentials.innerHTML =
+            "Faculty: faculty / 1234";
+
+    } else {
+
+        usernameInput.placeholder =
+            "e.g. student1";
+
+        demoCredentials.innerHTML =
+            "Student accounts:<br>" +
+            "student1 / 1234<br>" +
+            "student2 / 1234<br>" +
+            "student3 / 1234<br>" +
+            "student4 / 1234<br>" +
+            "student5 / 1234<br>" +
+            "student6 / 1234<br>" +
+            "student7 / 1234";
+
+    }
+
+    document.getElementById(
+        "loginMessage"
+    ).textContent = "";
+
+}
+
+roleStudent.addEventListener(
+    "change",
+    updateRoleSlider
+);
+
+roleFaculty.addEventListener(
+    "change",
+    updateRoleSlider
+);
+
+updateRoleSlider();
+
+document.getElementById(
+    "loginForm"
+).addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        const username =
+            document.getElementById(
+                "username"
+            ).value.trim();
+
+        const password =
+            document.getElementById(
+                "password"
+            ).value;
+
+        const selectedRole =
+            document.querySelector(
+                'input[name="loginRole"]:checked'
+            ).value;
+
+        const users = getUsers();
+
+        const user =
+            users.find(function(item) {
+
+                return (
+                    String(
+                        item.username || ""
+                    ).toLowerCase() ===
+                    username.toLowerCase()
+                    &&
+                    item.password === password
+                    &&
+                    item.role === selectedRole
+                );
+
+            });
+
+        const message =
+            document.getElementById(
+                "loginMessage"
+            );
+
+        if (!user) {
+
+            message.className = "error";
+
+            message.textContent =
+                "Invalid username, password, or selected account type.";
+
+            return;
+
+        }
+
+        localStorage.setItem(
+            CURRENT_USER_KEY,
+            JSON.stringify(user)
+        );
+
+        message.textContent = "";
+
+        const availableSubjects =
+            getSubjects();
+
+        currentSubject =
+            user.role === "student"
+                ? (
+                    availableSubjects.length > 0
+                        ? availableSubjects[0]
+                        : "All"
+                )
+                : "All";
+
+        openDashboard();
+
+    }
+);
+
+function openDashboard() {
+
+    const user = getCurrentUser();
+
+    if (!user) {
+        return;
+    }
+
+    document.getElementById(
+        "loginPage"
+    ).classList.add("hidden");
+
+    document.getElementById(
+        "appPage"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "welcomeUser"
+    ).textContent =
+        user.username +
+        " (" +
+        user.role +
+        ")";
+
+    document.getElementById(
+        "welcomeUser"
+    ).style.color = "orange";
+
+    document.getElementById(
+        "welcomeUser"
+    ).style.fontWeight = "bold";
+
+    document.getElementById(
+        "facultyDashboard"
+    ).classList.add("hidden");
+
+    document.getElementById(
+        "studentDashboard"
+    ).classList.add("hidden");
+
+    const dashboardButton =
+        document.getElementById(
+            "viewDashboardBtn"
+        );
+
+    if (dashboardButton) {
+
+        dashboardButton.classList.toggle(
+            "hidden",
+            user.role !== "faculty"
+        );
+
+    }
+
+    if (user.role === "faculty") {
+
+        document.getElementById(
+            "facultyDashboard"
+        ).classList.remove("hidden");
+
+        renderFacultySubjectTabs();
+        populateSubjectSelect();
+        displayFacultyAssignments();
+        displayAllSubmissions();
+
+    } else {
+
+        document.getElementById(
+            "studentDashboard"
+        ).classList.remove("hidden");
+
+        renderStudentSubjectTabs();
+        displayStudentAssignments();
+        displayMySubmissions();
+
+    }
+
+}
+
+function viewFacultyDashboard() {
+
+    const user = getCurrentUser();
+
+    if (!user || user.role !== "faculty") {
+
+        alert(
+            "Only faculty can view the dashboard."
+        );
+
+        return;
+
+    }
+
+    localStorage.setItem(
+        "ams_dashboardSubject",
+        currentSubject
+    );
+
+    window.location.href =
+        "faculty-dashboard.html";
+
+}
+
+function showFacultyDashboard() {
+
+    const user = getCurrentUser();
+
+    if (!user || user.role !== "faculty") {
+        return;
+    }
+
+    document.getElementById(
+        "facultyAnalyticsSection"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "createAssignmentCard"
+    ).classList.add("hidden");
+
+    updateFacultyCharts();
+
+}
+
+function logout() {
+
+    const dashboardButton =
+        document.getElementById(
+            "viewDashboardBtn"
+        );
+
+    if (dashboardButton) {
+
+        dashboardButton.classList.add("hidden");
+
+    }
+
+    localStorage.removeItem(
+        CURRENT_USER_KEY
+    );
+
+    localStorage.removeItem(
+        "ams_dashboardSubject"
+    );
+
+    document.getElementById(
+        "appPage"
+    ).classList.add("hidden");
+
+    document.getElementById(
+        "loginPage"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "loginForm"
+    ).reset();
+
+    roleStudent.checked = true;
+    roleFaculty.checked = false;
+
+    currentSubject = "All";
+
+    updateRoleSlider();
+
+}
+
+function showCreateAssignment() {
+
+    populateSubjectSelect();
+
+    document.getElementById(
+        "createAssignmentCard"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "assignmentForm"
+    ).reset();
+
+    document.getElementById(
+        "editAssignmentId"
+    ).value = "";
+
+    document.getElementById(
+        "assignmentFormTitle"
+    ).textContent =
+        "Post Assignment";
+
+    document.getElementById(
+        "assignmentMessage"
+    ).textContent = "";
+
+    if (currentSubject !== "All") {
+
+        document.getElementById(
+            "assignmentSubject"
+        ).value =
+            currentSubject;
+
+    }
+
+}
+
+function cancelAssignmentForm() {
+
+    document.getElementById(
+        "createAssignmentCard"
+    ).classList.add("hidden");
+
+    document.getElementById(
+        "assignmentForm"
+    ).reset();
+
+    document.getElementById(
+        "editAssignmentId"
+    ).value = "";
+
+}
+
+document.getElementById(
+    "assignmentForm"
+).addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        const subject =
+            document.getElementById(
+                "assignmentSubject"
+            ).value.trim();
+
+        const title =
+            document.getElementById(
+                "assignmentTitle"
+            ).value.trim();
+
+        const description =
+            document.getElementById(
+                "assignmentDescription"
+            ).value.trim();
+
+        const deadline =
+            document.getElementById(
+                "assignmentDeadline"
+            ).value;
+
+        const editId =
+            document.getElementById(
+                "editAssignmentId"
+            ).value;
+
+        const message =
+            document.getElementById(
+                "assignmentMessage"
+            );
+
+        if (
+            !subject ||
+            !title ||
+            !description ||
+            !deadline
+        ) {
+
+            message.className = "error";
+
+            message.textContent =
+                "Please fill all required fields.";
+
+            return;
+
+        }
+
+        const deadlineDate =
+            new Date(deadline);
+
+        if (
+            Number.isNaN(
+                deadlineDate.getTime()
+            )
+        ) {
+
+            message.className = "error";
+
+            message.textContent =
+                "Invalid deadline.";
+
+            return;
+
+        }
+
+        if (
+            !editId &&
+            deadlineDate <= new Date()
+        ) {
+
+            message.className = "error";
+
+            message.textContent =
+                "Deadline must be in the future.";
+
+            return;
+
+        }
+
+        const assignments =
+            getAssignments();
+
+        if (editId) {
+
+            const index =
+                assignments.findIndex(
+                    function(item) {
+
+                        return String(item.id) ===
+                            String(editId);
+
+                    }
+                );
+
+            if (index === -1) {
+
+                message.className = "error";
+
+                message.textContent =
+                    "Assignment not found.";
+
+                return;
+
+            }
+
+            assignments[index] = {
+
+                ...assignments[index],
+
+                subject: subject,
+                title: title,
+                description: description,
+                deadline: deadline
+
+            };
+
+            saveAssignments(assignments);
+
+            currentSubject = subject;
+
+            cancelAssignmentForm();
+
+            refreshSubjectSystem();
+
+            alert(
+                "Assignment updated successfully."
+            );
+
+            return;
+
+        }
+
+        const newAssignment = {
+
+            id: Date.now(),
+
+            subject: subject,
+
+            title: title,
+
+            description: description,
+
+            deadline: deadline,
+
+            createdAt:
+                new Date().toISOString()
+
+        };
+
+        assignments.push(
+            newAssignment
+        );
+
+        saveAssignments(
+            assignments
+        );
+
+        currentSubject = subject;
+
+        cancelAssignmentForm();
+
+        refreshSubjectSystem();
+
+        alert(
+            "Assignment posted successfully."
+        );
+
+    }
+);
+
+function populateSubjectSelect() {
+
+    const select =
+        document.getElementById(
+            "assignmentSubject"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    const subjects =
+        getSubjects();
+
+    select.innerHTML =
+        subjects.map(function(subject) {
+
+            return `
+                <option value="${escapeHTML(subject)}">
+                    ${escapeHTML(subject)}
+                </option>
+            `;
+
+        }).join("");
+
+    if (
+        currentSubject !== "All" &&
+        subjects.some(function(subject) {
+
+            return normalizeSubject(subject) ===
+                normalizeSubject(currentSubject);
+
+        })
+    ) {
+
+        select.value = currentSubject;
+
+    }
+
+}
+
+function addSubject() {
+
+    const user =
+        getCurrentUser();
+
+    if (
+        !user ||
+        user.role !== "faculty"
+    ) {
+
+        alert(
+            "Only faculty can add subjects."
+        );
+
+        return;
+
+    }
+
+    const subject =
+        prompt(
+            "Enter the new subject name:"
+        );
+
+    if (subject === null) {
+        return;
+    }
+
+    const cleanSubject =
+        subject.trim();
+
+    if (!cleanSubject) {
+
+        alert(
+            "Subject name cannot be empty."
+        );
+
+        return;
+
+    }
+
+    const subjects =
+        getSubjects();
+
+    const exists =
+        subjects.some(function(item) {
+
+            return normalizeSubject(item) ===
+                normalizeSubject(cleanSubject);
+
+        });
+
+    if (exists) {
+
+        alert(
+            "This subject already exists."
+        );
+
+        return;
+
+    }
+
+    subjects.push(
+        cleanSubject
+    );
+
+    saveSubjects(
+        subjects
+    );
+
+    currentSubject =
+        cleanSubject;
+
+    populateSubjectSelect();
+
+    refreshSubjectSystem();
+
+    document.getElementById(
+        "assignmentSubject"
+    ).value =
+        cleanSubject;
+
+}
+
+function renderFacultySubjectTabs() {
+
+    const container = document.getElementById("facultySubjectTabs");
+
+    if (!container) {
+        return;
+    }
+
+    const subjects = getSubjects();
+
+    container.innerHTML = `
+        <button type="button" class="subject-tab ${currentSubject === "All" ? "active" : ""}" data-subject="All">
+            All Subjects
+        </button>
+        ${subjects.map(function(subject) {
+            const active = normalizeSubject(currentSubject) === normalizeSubject(subject);
+            return `
+                <button type="button" class="subject-tab ${active ? "active" : ""}" data-subject="${escapeHTML(subject)}">
+                    ${escapeHTML(subject)}
+                </button>
+            `;
+        }).join("")}
+        <button type="button" class="add-subject-btn" id="addSubjectButton">
+            + Add Subject
+        </button>
+    `;
+
+    container.querySelectorAll(".subject-tab").forEach(function(button) {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            selectSubject(button.getAttribute("data-subject"));
+        });
+    });
+
+    const addButton = document.getElementById("addSubjectButton");
+    if (addButton) {
+        addButton.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            addSubject();
+        });
+    }
+}
+
+function renderStudentSubjectTabs() {
+
+    const container = document.getElementById("studentSubjectTabs");
+
+    if (!container) {
+        return;
+    }
+
+    const subjects = getSubjects();
+
+    if (currentSubject !== "All") {
+        const matchingSubject = subjects.find(function(subject) {
+            return normalizeSubject(subject) === normalizeSubject(currentSubject);
+        });
+
+        if (matchingSubject) {
+            currentSubject = matchingSubject;
+        } else {
+            currentSubject = subjects.length > 0 ? subjects[0] : "All";
+        }
+    }
+
+    container.innerHTML = `
+        <button type="button" class="subject-tab ${currentSubject === "All" ? "active" : ""}" data-subject="All">
+            All Subjects
+        </button>
+        ${subjects.map(function(subject) {
+            const active = normalizeSubject(currentSubject) === normalizeSubject(subject);
+            return `
+                <button type="button" class="subject-tab ${active ? "active" : ""}" data-subject="${escapeHTML(subject)}">
+                    ${escapeHTML(subject)}
+                </button>
+            `;
+        }).join("")}
+    `;
+
+    container.querySelectorAll(".subject-tab").forEach(function(button) {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            selectSubject(button.getAttribute("data-subject"));
+        });
+    });
+}
+
+function selectSubject(subject) {
+
+    const subjects = getSubjects();
+
+    if (subject !== "All") {
+        const matchingSubject = subjects.find(function(item) {
+            return normalizeSubject(item) === normalizeSubject(subject);
+        });
+
+        if (!matchingSubject) {
+            return;
+        }
+
+        currentSubject = matchingSubject;
+    } else {
+        currentSubject = "All";
+    }
+
+    localStorage.setItem("ams_dashboardSubject", currentSubject);
+    refreshSubjectSystem();
+}
+
+function refreshSubjectSystem() {
+
+    const user =
+        getCurrentUser();
+
+    if (!user) {
+        return;
+    }
+
+    if (user.role === "faculty") {
+
+        renderFacultySubjectTabs();
+
+        populateSubjectSelect();
+
+        displayFacultyAssignments();
+
+        displayAllSubmissions();
+
+        updateFacultyCharts();
+
+        const selectedTitle =
+            document.getElementById(
+                "facultySelectedSubject"
+            );
+
+        if (selectedTitle) {
+
+            selectedTitle.textContent =
+                currentSubject === "All"
+                    ? "Showing: All Subjects"
+                    : "Showing: " +
+                        currentSubject;
+
+        }
+
+    } else {
+
+        renderStudentSubjectTabs();
+
+        displayStudentAssignments();
+
+        displayMySubmissions();
+
+        const selectedTitle =
+            document.getElementById(
+                "studentSelectedSubject"
+            );
+
+        if (selectedTitle) {
+
+            selectedTitle.textContent =
+                currentSubject === "All"
+                    ? "Showing: All Subjects"
+                    : "Showing: " +
+                        currentSubject;
+
+        }
+
+    }
+
+}
+
+function displayFacultyAssignments() {
+
+    const container =
+        document.getElementById(
+            "facultyAssignments"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const filteredAssignments =
+        getAssignmentsForCurrentSubject();
+
+    const title =
+        document.getElementById(
+            "facultyAssignmentTableTitle"
+        );
+
+    if (title) {
+        title.textContent =
+            currentSubject === "All"
+                ? "All Subject Assignments"
+                : currentSubject + " Assignments";
+    }
+
+    if (filteredAssignments.length === 0) {
+
+        container.innerHTML = `
+            <div class="no-data subject-empty">
+                No assignments posted for
+                ${
+                    currentSubject === "All"
+                        ? "any subject"
+                        : escapeHTML(currentSubject)
+                }.
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Assignment</th>
+                    <th>Description</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${
+                    filteredAssignments.map(
+                        function(assignment) {
+
+                            const closed =
+                                new Date() >=
+                                new Date(
+                                    assignment.deadline
+                                );
+
+                            return `
+                                <tr>
+                                    <td>
+                                        <span class="student-badge">
+                                            ${escapeHTML(
+                                                getAssignmentSubject(
+                                                    assignment
+                                                )
+                                            )}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            ${escapeHTML(
+                                                assignment.title
+                                            )}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            assignment.description
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            formatDate(
+                                                assignment.deadline
+                                            )
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        <span class="status ${
+                                            closed
+                                                ? "closed"
+                                                : "open"
+                                        }">
+                                            ${
+                                                closed
+                                                    ? "Closed"
+                                                    : "Open"
+                                            }
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="actions">
+                                            <button
+                                                class="warning-btn"
+                                                onclick="editAssignment(${assignment.id})"
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                class="danger-btn"
+                                                onclick="deleteAssignment(${assignment.id})"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+
+                        }
+                    ).join("")
+                }
+            </tbody>
+        </table>
+    `;
+
+}
+
+function editAssignment(id) {
+
+    const assignments =
+        getAssignments();
+
+    const assignment =
+        assignments.find(
+            function(item) {
+
+                return String(item.id) ===
+                    String(id);
+
+            }
+        );
+
+    if (!assignment) {
+
+        alert(
+            "Assignment not found."
+        );
+
+        return;
+
+    }
+
+    currentSubject =
+        getAssignmentSubject(
+            assignment
+        );
+
+    document.getElementById(
+        "createAssignmentCard"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+        "assignmentFormTitle"
+    ).textContent =
+        "Edit Assignment";
+
+    document.getElementById(
+        "editAssignmentId"
+    ).value =
+        assignment.id;
+
+    populateSubjectSelect();
+
+    document.getElementById(
+        "assignmentSubject"
+    ).value =
+        getAssignmentSubject(
+            assignment
+        );
+
+    document.getElementById(
+        "assignmentTitle"
+    ).value =
+        assignment.title;
+
+    document.getElementById(
+        "assignmentDescription"
+    ).value =
+        assignment.description;
+
+    document.getElementById(
+        "assignmentDeadline"
+    ).value =
+        assignment.deadline;
+
+    document.getElementById(
+        "assignmentMessage"
+    ).textContent = "";
+
+}
+
+function deleteAssignment(id) {
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this assignment?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    let assignments =
+        getAssignments();
+
+    assignments =
+        assignments.filter(
+            function(item) {
+
+                return String(item.id) !==
+                    String(id);
+
+            }
+        );
+
+    saveAssignments(
+        assignments
+    );
+
+    const allSubmissions =
+        getSubmissions();
+
+    const deletedSubmissions =
+        allSubmissions.filter(
+            function(item) {
+
+                return String(
+                    item.assignmentId
+                ) ===
+                String(id);
+
+            }
+        );
+
+    const remainingSubmissions =
+        allSubmissions.filter(
+            function(item) {
+
+                return String(
+                    item.assignmentId
+                ) !==
+                String(id);
+
+            }
+        );
+
+    saveSubmissions(
+        remainingSubmissions
+    );
+
+    Promise.all(
+        deletedSubmissions.map(
+            function(item) {
+
+                return deletePDFFromDatabase(
+                    item.pdfId || item.id
+                );
+
+            }
+        )
+    ).catch(function(error) {
+
+        console.error(
+            "PDF cleanup error:",
+            error
+        );
+
+    });
+
+    refreshSubjectSystem();
+
+    alert(
+        "Assignment deleted successfully."
+    );
+
+}
+
+function displayStudentAssignments() {
+
+    const container =
+        document.getElementById(
+            "studentAssignments"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const assignments =
+        getAssignmentsForCurrentSubject();
+
+    const user =
+        getCurrentUser();
+
+    if (!user) {
+        return;
+    }
+
+    const title =
+        document.getElementById(
+            "studentAssignmentTableTitle"
+        );
+
+    if (title) {
+        title.textContent =
+            currentSubject === "All"
+                ? "All Subject Assignments"
+                : currentSubject + " Assignments";
+    }
+
+    if (assignments.length === 0) {
+
+        container.innerHTML = `
+            <div class="no-data subject-empty">
+                No assignments available for
+                ${
+                    currentSubject === "All"
+                        ? "any subject"
+                        : escapeHTML(currentSubject)
+                }.
+            </div>
+        `;
+
+        return;
+    }
+
+    const submissions =
+        getSubmissions();
+
+    container.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Assignment</th>
+                    <th>Description</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th>Submission</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                ${
+                    assignments.map(
+                        function(assignment) {
+
+                            const closed =
+                                new Date() >=
+                                new Date(
+                                    assignment.deadline
+                                );
+
+                            const submission =
+                                submissions.find(
+                                    function(item) {
+
+                                        return (
+                                            String(
+                                                item.assignmentId
+                                            ) ===
+                                            String(
+                                                assignment.id
+                                            )
+                                            &&
+                                            String(
+                                                item.studentId
+                                            ) ===
+                                            String(
+                                                user.id
+                                            )
+                                        );
+
+                                    }
+                                );
+
+                            return `
+                                <tr>
+                                    <td>
+                                        <span class="student-badge">
+                                            ${escapeHTML(
+                                                getAssignmentSubject(
+                                                    assignment
+                                                )
+                                            )}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            ${escapeHTML(
+                                                assignment.title
+                                            )}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            assignment.description
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHTML(
+                                            formatDate(
+                                                assignment.deadline
+                                            )
+                                        )}
+
+                                        <div
+                                            id="countdown-${assignment.id}"
+                                            style="margin-top:5px;font-size:12px;"
+                                        >
+                                            ${
+                                                getRemainingTime(
+                                                    assignment.deadline
+                                                )
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            class="status ${
+                                                closed
+                                                    ? "closed"
+                                                    : "open"
+                                            }"
+                                        >
+                                            ${
+                                                closed
+                                                    ? "Submission Closed"
+                                                    : "Submission Open"
+                                            }
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        ${
+                                            submission
+                                                ?
+                                                `
+                                                    <p class="success">
+                                                        You already submitted.
+                                                    </p>
+
+                                                    <span class="pdf-name">
+                                                        ${escapeHTML(
+                                                            submission.fileName
+                                                        )}
+                                                    </span>
+                                                `
+                                                :
+                                                `
+                                                    <input
+                                                        type="file"
+                                                        accept="application/pdf,.pdf"
+                                                        id="submission-file-${assignment.id}"
+                                                        ${
+                                                            closed
+                                                                ? "disabled"
+                                                                : ""
+                                                        }
+                                                    >
+
+                                                    <button
+                                                        class="success-btn"
+                                                        id="submit-btn-${assignment.id}"
+                                                        onclick="submitAssignment(${assignment.id})"
+                                                        ${
+                                                            closed
+                                                                ? "disabled"
+                                                                : ""
+                                                        }
+                                                        style="margin-top:8px;"
+                                                    >
+                                                        ${
+                                                            closed
+                                                                ? "Submission Closed"
+                                                                : "Submit Assignment"
+                                                        }
+                                                    </button>
+
+                                                    <p
+                                                        id="submit-message-${assignment.id}"
+                                                    ></p>
+                                                `
+                                        }
+                                    </td>
+                                </tr>
+                            `;
+
+                        }
+                    ).join("")
+                }
+            </tbody>
+        </table>
+    `;
+
+}
+
+function isDeadlinePassed(deadline) {
+
+    return (
+        new Date() >=
+        new Date(deadline)
+    );
+
+}
+
+function submitAssignment(
+    assignmentId
+) {
+
+    const user =
+        getCurrentUser();
+
+    if (!user) {
+
+        alert(
+            "Please login first."
+        );
+
+        return;
+
+    }
+
+    if (user.role !== "student") {
+
+        alert(
+            "Only students can submit assignments."
+        );
+
+        return;
+
+    }
+
+    const assignments =
+        getAssignments();
+
+    const assignment =
+        assignments.find(
+            function(item) {
+
+                return String(item.id) ===
+                    String(assignmentId);
+
+            }
+        );
+
+    if (!assignment) {
+
+        alert(
+            "Assignment not found."
+        );
+
+        return;
+
+    }
+
+    if (
+        isDeadlinePassed(
+            assignment.deadline
+        )
+    ) {
+
+        alert(
+            "Submission closed. The deadline has passed."
+        );
+
+        displayStudentAssignments();
+
+        return;
+
+    }
+
+    const input =
+        document.getElementById(
+            "submission-file-" +
+            assignmentId
+        );
+
+    const message =
+        document.getElementById(
+            "submit-message-" +
+            assignmentId
+        );
+
+    const submitButton =
+        document.getElementById(
+            "submit-btn-" +
+            assignmentId
+        );
+
+    if (
+        !input ||
+        input.files.length === 0
+    ) {
+
+        message.className = "error";
+
+        message.textContent =
+            "Please select a PDF file.";
+
+        return;
+
+    }
+
+    const file =
+        input.files[0];
+
+    const isPDF =
+        file.type === "application/pdf" ||
+        file.name.toLowerCase().endsWith(".pdf");
+
+    if (!isPDF) {
+
+        message.className = "error";
+
+        message.textContent =
+            "Only PDF files are allowed.";
+
+        return;
+
+    }
+
+    const submissions =
+        getSubmissions();
+
+    const alreadySubmitted =
+        submissions.some(
+            function(item) {
+
+                return (
+                    String(
+                        item.assignmentId
+                    ) ===
+                    String(assignmentId)
+                    &&
+                    String(
+                        item.studentId
+                    ) ===
+                    String(user.id)
+                );
+
+            }
+        );
+
+    if (alreadySubmitted) {
+
+        message.className = "error";
+
+        message.textContent =
+            "You have already submitted this assignment.";
+
+        return;
+
+    }
+
+    submitButton.disabled = true;
+
+    submitButton.textContent =
+        "Uploading...";
+
+    const submissionId =
+        Date.now();
+
+    if (
+        isDeadlinePassed(
+            assignment.deadline
+        )
+    ) {
+
+        message.className = "error";
+
+        message.textContent =
+            "Submission closed. The deadline has passed.";
+
+        displayStudentAssignments();
+
+        return;
+
+    }
+
+    const newSubmission = {
+
+        id: submissionId,
+
+        assignmentId: assignmentId,
+
+        studentId: user.id,
+
+        studentName: user.name,
+
+        studentUsername: user.username,
+
+        fileName: file.name,
+
+        hasPDF: true,
+
+        pdfId: String(submissionId),
+
+        submittedAt:
+            new Date().toISOString(),
+
+        marks: null
+
+    };
+
+    savePDFToDatabase(
+        submissionId,
+        file
+    )
+
+    .then(function() {
+
+        const latestSubmissions =
+            getSubmissions().map(
+                function(item) {
+
+                    const cleanItem =
+                        { ...item };
+
+                    delete cleanItem.fileData;
+
+                    return cleanItem;
+
+                }
+            );
+
+        latestSubmissions.push(
+            newSubmission
+        );
+
+        try {
+
+            saveSubmissions(
+                latestSubmissions
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Submission metadata storage error:",
+                error
+            );
+
+            return deletePDFFromDatabase(
+                submissionId
+            ).then(function() {
+
+                throw error;
+
+            });
+
+        }
+
+    })
+
+    .then(function() {
+
+        message.className =
+            "success";
+
+        message.textContent =
+            "Assignment submitted successfully.";
+
+        displayStudentAssignments();
+
+        displayMySubmissions();
+
+    })
+
+    .catch(function(error) {
+
+        console.error(
+            "PDF save error:",
+            error
+        );
+
+        message.className =
+            "error";
+
+        message.textContent =
+            "Could not save the PDF. Please try again.";
+
+        submitButton.disabled =
+            false;
+
+        submitButton.textContent =
+            "Submit Assignment";
+
+    });
+
+}
+
+function displayAllSubmissions() {
+
+    const tbody =
+        document.getElementById(
+            "submissionTableBody"
+        );
+
+    if (!tbody) {
+        return;
+    }
+
+    const submissions =
+        getSubmissionsForCurrentSubject();
+
+    const assignments =
+        getAssignments();
+
+    if (submissions.length === 0) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="8">
+
+                    No submissions for
+                    ${
+                        currentSubject === "All"
+                            ? "any subject"
+                            : escapeHTML(currentSubject)
+                    }.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        updateFacultyCharts();
+
+        return;
+
+    }
+
+    submissions.sort(function(a, b) {
+
+        return new Date(b.submittedAt) -
+               new Date(a.submittedAt);
+
+    });
+
+    tbody.innerHTML =
+        submissions.map(
+            function(submission) {
+
+                const assignment =
+                    assignments.find(
+                        function(item) {
+
+                            return String(item.id) ===
+                                String(
+                                    submission.assignmentId
+                                );
+
+                        }
+                    );
+
+                const assignmentTitle =
+                    assignment
+                        ? assignment.title
+                        : "Deleted Assignment";
+
+                const subject =
+                    assignment
+                        ? getAssignmentSubject(
+                            assignment
+                        )
+                        : "General";
+
+                const marks =
+                    submission.marks === null ||
+                    submission.marks === undefined ||
+                    submission.marks === ""
+                        ? "Not graded"
+                        : submission.marks;
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            <span class="student-badge">
+
+                                ${escapeHTML(
+                                    submission.studentName
+                                )}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                submission.studentUsername
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                subject
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                assignmentTitle
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                formatDate(
+                                    submission.submittedAt
+                                )
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${
+                                submission.hasPDF ||
+                                submission.fileData
+
+                                ?
+
+                                `
+
+                                    <button
+                                        class="primary-btn"
+                                        onclick="viewPDF(${submission.id})"
+                                    >
+                                        View PDF
+                                    </button>
+
+                                    <span class="pdf-name">
+
+                                        ${escapeHTML(
+                                            submission.fileName
+                                        )}
+
+                                    </span>
+
+                                `
+
+                                :
+
+                                "No PDF"
+
+                            }
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                marks
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                id="marks-${submission.id}"
+                                value="${
+                                    submission.marks ?? ""
+                                }"
+                                style="
+                                    width:90px;
+                                    padding:7px;
+                                "
+                            >
+
+                            <button
+                                class="success-btn"
+                                onclick="saveMarks(${submission.id})"
+                            >
+                                Save
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+    updateFacultyCharts();
+
+}
+
+function viewPDF(
+    submissionId
+) {
+
+    const user =
+        getCurrentUser();
+
+    if (
+        !user ||
+        user.role !== "faculty"
+    ) {
+
+        alert(
+            "Only faculty can view student PDFs."
+        );
+
+        return;
+
+    }
+
+    const submissions =
+        getSubmissions();
+
+    const submission =
+        submissions.find(
+            function(item) {
+
+                return String(item.id) ===
+                    String(submissionId);
+
+            }
+        );
+
+    if (!submission) {
+
+        alert(
+            "Submission not found."
+        );
+
+        return;
+
+    }
+
+    if (submission.fileData) {
+
+        try {
+
+            const parts =
+                submission.fileData.split(",");
+
+            const header =
+                parts[0];
+
+            const base64Data =
+                parts.slice(1).join(",");
+
+            const mimeMatch =
+                header.match(
+                    /data:(.*?);base64/
+                );
+
+            const mimeType =
+                mimeMatch
+                    ? mimeMatch[1]
+                    : "application/pdf";
+
+            const byteCharacters =
+                atob(base64Data);
+
+            const byteNumbers =
+                new Uint8Array(
+                    byteCharacters.length
+                );
+
+            for (
+                let i = 0;
+                i < byteCharacters.length;
+                i++
+            ) {
+
+                byteNumbers[i] =
+                    byteCharacters.charCodeAt(i);
+
+            }
+
+            const blob =
+                new Blob(
+                    [byteNumbers],
+                    { type: mimeType }
+                );
+
+            openPDFBlob(blob);
+
+            return;
+
+        } catch (error) {
+
+            console.error(
+                "Legacy PDF viewing error:",
+                error
+            );
+
+        }
+
+    }
+
+    if (!submission.hasPDF) {
+
+        alert(
+            "PDF file is not available."
+        );
+
+        return;
+
+    }
+
+    getPDFFromDatabase(
+        submission.pdfId || submission.id
+    )
+
+    .then(function(file) {
+
+        if (!file) {
+
+            alert(
+                "PDF file not found in browser storage."
+            );
+
+            return;
+
+        }
+
+        openPDFBlob(file);
+
+    })
+
+    .catch(function(error) {
+
+        console.error(
+            "PDF viewing error:",
+            error
+        );
+
+        alert(
+            "Unable to open the PDF file."
+        );
+
+    });
+
+}
+
+function openPDFBlob(file) {
+
+    const pdfURL =
+        URL.createObjectURL(file);
+
+    const pdfWindow =
+        window.open(
+            pdfURL,
+            "_blank"
+        );
+
+    if (!pdfWindow) {
+
+        URL.revokeObjectURL(
+            pdfURL
+        );
+
+        alert(
+            "Popup was blocked. Please allow popups for this page."
+        );
+
+        return;
+
+    }
+
+    setTimeout(
+        function() {
+
+            URL.revokeObjectURL(
+                pdfURL
+            );
+
+        },
+        120000
+    );
+
+}
+
+function saveMarks(
+    submissionId
+) {
+
+    const user =
+        getCurrentUser();
+
+    if (
+        !user ||
+        user.role !== "faculty"
+    ) {
+
+        alert(
+            "Only faculty can save marks."
+        );
+
+        return;
+
+    }
+
+    const input =
+        document.getElementById(
+            "marks-" +
+            submissionId
+        );
+
+    if (!input) {
+        return;
+    }
+
+    const value =
+        input.value.trim();
+
+    if (
+        value !== "" &&
+        (
+            Number(value) < 0 ||
+            Number(value) > 100
+        )
+    ) {
+
+        alert(
+            "Marks must be between 0 and 100."
+        );
+
+        return;
+
+    }
+
+    const submissions =
+        getSubmissions();
+
+    const submission =
+        submissions.find(
+            function(item) {
+
+                return String(item.id) ===
+                    String(submissionId);
+
+            }
+        );
+
+    if (!submission) {
+
+        alert(
+            "Submission not found."
+        );
+
+        return;
+
+    }
+
+    submission.marks =
+        value === ""
+            ? null
+            : Number(value);
+
+    saveSubmissions(
+        submissions
+    );
+
+    displayAllSubmissions();
+
+    displayMySubmissions();
+
+    updateFacultyCharts();
+
+    alert(
+        "Marks saved successfully."
+    );
+
+}
+
+function displayMySubmissions() {
+
+    const tbody =
+        document.getElementById(
+            "mySubmissionTableBody"
+        );
+
+    if (!tbody) {
+        return;
+    }
+
+    const user =
+        getCurrentUser();
+
+    if (!user) {
+        return;
+    }
+
+    const submissions =
+        getSubmissions();
+
+    const assignments =
+        getAssignments();
+
+    const mySubmissions =
+        submissions.filter(
+            function(item) {
+
+                if (
+                    String(item.studentId) !==
+                    String(user.id)
+                ) {
+
+                    return false;
+
+                }
+
+                const assignment =
+                    assignments.find(
+                        function(assignmentItem) {
+
+                            return String(
+                                assignmentItem.id
+                            ) ===
+                            String(
+                                item.assignmentId
+                            );
+
+                        }
+                    );
+
+                if (!assignment) {
+                    return false;
+                }
+
+                return assignmentMatchesSubject(
+                    assignment,
+                    currentSubject
+                );
+
+            }
+        );
+
+    if (mySubmissions.length === 0) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    No submissions for
+                    ${
+                        currentSubject === "All"
+                            ? "any subject"
+                            : escapeHTML(currentSubject)
+                    }.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+    mySubmissions.sort(function(a, b) {
+
+        return new Date(b.submittedAt) -
+               new Date(a.submittedAt);
+
+    });
+
+    tbody.innerHTML =
+        mySubmissions.map(
+            function(submission) {
+
+                const assignment =
+                    assignments.find(
+                        function(item) {
+
+                            return String(
+                                item.id
+                            ) ===
+                            String(
+                                submission.assignmentId
+                            );
+
+                        }
+                    );
+
+                const title =
+                    assignment
+                        ? assignment.title
+                        : "Deleted Assignment";
+
+                const subject =
+                    assignment
+                        ? getAssignmentSubject(
+                            assignment
+                        )
+                        : "General";
+
+                const marks =
+                    submission.marks === null ||
+                    submission.marks === undefined
+                        ? "Not graded"
+                        : submission.marks;
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            ${escapeHTML(
+                                title
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                subject
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                formatDate(
+                                    submission.submittedAt
+                                )
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(
+                                marks
+                            )}
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+function formatDate(
+    dateString
+) {
+
+    const date =
+        new Date(dateString);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "Invalid date";
+
+    }
+
+    return date.toLocaleString();
+
+}
+
+function getRemainingTime(
+    deadline
+) {
+
+    const now =
+        new Date();
+
+    const target =
+        new Date(deadline);
+
+    const difference =
+        target.getTime() -
+        now.getTime();
+
+    if (difference <= 0) {
+
+        return "Closed";
+
+    }
+
+    const totalSeconds =
+        Math.floor(
+            difference / 1000
+        );
+
+    const days =
+        Math.floor(
+            totalSeconds / 86400
+        );
+
+    const hours =
+        Math.floor(
+            (totalSeconds % 86400) / 3600
+        );
+
+    const minutes =
+        Math.floor(
+            (totalSeconds % 3600) / 60
+        );
+
+    const seconds =
+        totalSeconds % 60;
+
+    return (
+        days +
+        "d " +
+        hours +
+        "h " +
+        minutes +
+        "m " +
+        seconds +
+        "s"
+    );
+
+}
+
+function updateFacultyCharts() {
+
+    const dashboard =
+        document.getElementById(
+            "facultyDashboard"
+        );
+
+    if (
+        !dashboard ||
+        dashboard.classList.contains("hidden")
+    ) {
+
+        return;
+
+    }
+
+    const users =
+        getUsers();
+
+    const students =
+        users.filter(
+            function(user) {
+
+                return user.role === "student";
+
+            }
+        );
+
+    const submissions =
+        getSubmissionsForCurrentSubject();
+
+    if (performanceChartInstance) {
+
+        performanceChartInstance.destroy();
+
+        performanceChartInstance = null;
+
+    }
+
+    if (marksPerformanceChartInstance) {
+
+        marksPerformanceChartInstance.destroy();
+
+        marksPerformanceChartInstance = null;
+
+    }
+
+    const studentsSubmittedCount =
+        students.filter(
+            function(student) {
+
+                return submissions.some(
+                    function(submission) {
+
+                        return String(
+                            submission.studentId
+                        ) ===
+                        String(
+                            student.id
+                        );
+
+                    }
+                );
+
+            }
+        ).length;
+
+    const studentsNotSubmittedCount =
+        students.length -
+        studentsSubmittedCount;
+
+    const performanceCanvas =
+        document.getElementById(
+            "performanceChart"
+        );
+
+    if (performanceCanvas) {
+
+        performanceChartInstance =
+            new Chart(
+                performanceCanvas,
+                {
+
+                    type: "bar",
+
+                    data: {
+
+                        labels: [
+                            "Submitted",
+                            "Not Submitted"
+                        ],
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    currentSubject === "All"
+                                        ? "All Subjects"
+                                        : currentSubject,
+
+                                data: [
+
+                                    studentsSubmittedCount,
+
+                                    studentsNotSubmittedCount
+
+                                ],
+
+                                borderWidth: 1
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        scales: {
+
+                            y: {
+
+                                beginAtZero: true,
+
+                                ticks: {
+
+                                    precision: 0
+
+                                }
+
+                            }
+
+                        },
+
+                        plugins: {
+
+                            legend: {
+
+                                display: true
+
+                            },
+
+                            tooltip: {
+
+                                callbacks: {
+
+                                    title: function() {
+
+                                        return currentSubject === "All"
+                                            ? "All Subjects"
+                                            : currentSubject;
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+    const studentMarks =
+        students.map(
+            function(student) {
+
+                const marks =
+                    submissions
+                        .filter(
+                            function(submission) {
+
+                                return (
+
+                                    String(
+                                        submission.studentId
+                                    ) ===
+                                    String(
+                                        student.id
+                                    )
+
+                                    &&
+
+                                    submission.marks !== null
+
+                                    &&
+
+                                    submission.marks !== undefined
+
+                                    &&
+
+                                    submission.marks !== ""
+
+                                    &&
+
+                                    !Number.isNaN(
+                                        Number(
+                                            submission.marks
+                                        )
+                                    )
+
+                                );
+
+                            }
+                        )
+                        .map(
+                            function(submission) {
+
+                                return Number(
+                                    submission.marks
+                                );
+
+                            }
+                        );
+
+                if (marks.length === 0) {
+                    return null;
+                }
+
+                return marks.reduce(
+                    function(total, mark) {
+
+                        return total + mark;
+
+                    },
+                    0
+                ) / marks.length;
+
+            }
+        );
+
+    const markedStudents = [];
+
+    students.forEach(
+        function(student, index) {
+
+            if (
+                studentMarks[index] !== null
+            ) {
+
+                const average =
+                    Number(
+                        studentMarks[index]
+                            .toFixed(1)
+                    );
+
+                const category =
+                    average >= 60
+                        ? "High"
+                        : "Low";
+
+                markedStudents.push({
+
+                    label:
+                        (
+                            student.name ||
+                            student.username
+                        ) +
+                        " (" +
+                        category +
+                        ")",
+
+                    value:
+                        average
+
+                });
+
+            }
+
+        }
+    );
+
+    const marksCanvas =
+        document.getElementById(
+            "marksPerformanceChart"
+        );
+
+    if (marksCanvas) {
+
+        marksPerformanceChartInstance =
+            new Chart(
+                marksCanvas,
+                {
+
+                    type: "pie",
+
+                    data: {
+
+                        labels:
+                            markedStudents.map(
+                                function(item) {
+
+                                    return item.label;
+
+                                }
+                            ),
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    currentSubject === "All"
+                                        ? "All Subjects"
+                                        : currentSubject,
+
+                                data:
+                                    markedStudents.map(
+                                        function(item) {
+
+                                            return item.value;
+
+                                        }
+                                    ),
+
+                                borderWidth: 1
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false,
+
+                        plugins: {
+
+                            legend: {
+
+                                position: "right"
+
+                            },
+
+                            tooltip: {
+
+                                callbacks: {
+
+                                    title: function() {
+
+                                        return currentSubject === "All"
+                                            ? "All Subjects"
+                                            : currentSubject;
+
+                                    },
+
+                                    label: function(context) {
+
+                                        return (
+                                            context.label +
+                                            ": " +
+                                            context.raw +
+                                            " marks average"
+                                        );
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+    const selectedTitle =
+        document.getElementById(
+            "facultySelectedSubject"
+        );
+
+    if (selectedTitle) {
+
+        selectedTitle.textContent =
+            currentSubject === "All"
+                ? "Showing: All Subjects"
+                : "Showing: " +
+                    currentSubject;
+
+    }
+
+}
+
+function downloadAssignmentsExcel() {
+
+    const user =
+        getCurrentUser();
+
+    if (!user) {
+        alert("Please login first.");
+        return;
+    }
+
+    const assignments =
+        getAssignmentsForCurrentSubject();
+
+    if (assignments.length === 0) {
+        alert(
+            "There are no assignments for " +
+            (
+                currentSubject === "All"
+                    ? "any subject"
+                    : currentSubject
+            ) +
+            "."
+        );
+        return;
+    }
+
+    if (typeof XLSX === "undefined") {
+        alert(
+            "Excel library could not be loaded. Please check your internet connection."
+        );
+        return;
+    }
+
+    const submissions =
+        getSubmissions();
+
+    const excelData =
+        assignments.map(
+            function(assignment) {
+
+                const submissionCount =
+                    submissions.filter(
+                        function(submission) {
+                            return String(
+                                submission.assignmentId
+                            ) ===
+                            String(
+                                assignment.id
+                            );
+                        }
+                    ).length;
+
+                const closed =
+                    new Date() >=
+                    new Date(
+                        assignment.deadline
+                    );
+
+                return {
+                    "Subject":
+                        getAssignmentSubject(
+                            assignment
+                        ),
+
+                    "Assignment Topic":
+                        assignment.title || "",
+
+                    "Description":
+                        assignment.description || "",
+
+                    "Deadline":
+                        formatDate(
+                            assignment.deadline
+                        ),
+
+                    "Status":
+                        closed
+                            ? "Closed"
+                            : "Open",
+
+                    "Total Submissions":
+                        submissionCount
+                };
+
+            }
+        );
+
+    const worksheet =
+        XLSX.utils.json_to_sheet(
+            excelData
+        );
+
+    const workbook =
+        XLSX.utils.book_new();
+
+    let sheetName =
+        currentSubject === "All"
+            ? "All Assignments"
+            : currentSubject;
+
+    sheetName =
+        sheetName
+            .replace(
+                /[\\\\\/\\?\\*\\[\\]:]/g,
+                ""
+            )
+            .substring(0, 31);
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        sheetName || "Assignments"
+    );
+
+    worksheet["!cols"] = [
+        { wch: 25 },
+        { wch: 35 },
+        { wch: 50 },
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 20 }
+    ];
+
+    const today =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    const fileSubject =
+        currentSubject === "All"
+            ? "All_Subjects"
+            : currentSubject.replace(
+                /[^a-zA-Z0-9]/g,
+                "_"
+            );
+
+    XLSX.writeFile(
+        workbook,
+        "Assignments_" +
+        fileSubject +
+        "_" +
+        today +
+        ".xlsx"
+    );
+
+}
+
+function downloadSubmissionsExcel() {
+
+    const user =
+        getCurrentUser();
+
+    if (
+        !user ||
+        user.role !== "faculty"
+    ) {
+
+        alert(
+            "Only faculty can download submissions."
+        );
+
+        return;
+
+    }
+
+    const submissions =
+        getSubmissionsForCurrentSubject();
+
+    const assignments =
+        getAssignments();
+
+    if (submissions.length === 0) {
+
+        alert(
+            "There are no submissions for " +
+            (
+                currentSubject === "All"
+                    ? "any subject"
+                    : currentSubject
+            ) +
+            "."
+        );
+
+        return;
+
+    }
+
+    if (typeof XLSX === "undefined") {
+
+        alert(
+            "Excel library could not be loaded. Please check your internet connection."
+        );
+
+        return;
+
+    }
+
+    const excelData =
+        submissions.map(
+            function(submission) {
+
+                const assignment =
+                    assignments.find(
+                        function(item) {
+
+                            return String(
+                                item.id
+                            ) ===
+                            String(
+                                submission.assignmentId
+                            );
+
+                        }
+                    );
+
+                return {
+
+                    "Student Name":
+                        submission.studentName || "",
+
+                    "Username":
+                        submission.studentUsername || "",
+
+                    "Subject":
+                        assignment
+                            ? getAssignmentSubject(
+                                assignment
+                            )
+                            : "General",
+
+                    "Assignment Topic":
+                        assignment
+                            ? assignment.title
+                            : "Deleted Assignment",
+
+                    "Submitted At":
+                        formatDate(
+                            submission.submittedAt
+                        ),
+
+                    "Marks":
+                        submission.marks === null ||
+                        submission.marks === undefined ||
+                        submission.marks === ""
+                            ? "Not Graded"
+                            : submission.marks
+
+                };
+
+            }
+        );
+
+    const worksheet =
+        XLSX.utils.json_to_sheet(
+            excelData
+        );
+
+    const workbook =
+        XLSX.utils.book_new();
+
+    let sheetName =
+        currentSubject === "All"
+            ? "All Submissions"
+            : currentSubject;
+
+    sheetName =
+        sheetName
+            .replace(
+                /[\\\/\?\*\[\]:]/g,
+                ""
+            )
+            .substring(0, 31);
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        sheetName
+    );
+
+    worksheet["!cols"] = [
+
+        { wch: 25 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 35 },
+        { wch: 25 },
+        { wch: 12 }
+
+    ];
+
+    const today =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    const fileSubject =
+        currentSubject === "All"
+            ? "All_Subjects"
+            : currentSubject.replace(
+                /[^a-zA-Z0-9]/g,
+                "_"
+            );
+
+    XLSX.writeFile(
+
+        workbook,
+
+        "Student_Submissions_" +
+        fileSubject +
+        "_" +
+        today +
+        ".xlsx"
+
+    );
+
+}
+
+setInterval(
+    function() {
+
+        const user =
+            getCurrentUser();
+
+        if (
+            !user ||
+            user.role !== "student"
+        ) {
+
+            return;
+
+        }
+
+        const assignments =
+            getAssignmentsForCurrentSubject();
+
+        assignments.forEach(
+            function(assignment) {
+
+                const countdown =
+                    document.getElementById(
+                        "countdown-" +
+                        assignment.id
+                    );
+
+                if (!countdown) {
+                    return;
+                }
+
+                countdown.innerHTML =
+                    "<strong>Time:</strong> " +
+                    escapeHTML(
+                        getRemainingTime(
+                            assignment.deadline
+                        )
+                    );
+
+                if (
+                    isDeadlinePassed(
+                        assignment.deadline
+                    )
+                ) {
+
+                    const button =
+                        document.getElementById(
+                            "submit-btn-" +
+                            assignment.id
+                        );
+
+                    const fileInput =
+                        document.getElementById(
+                            "submission-file-" +
+                            assignment.id
+                        );
+
+                    if (button) {
+
+                        button.disabled = true;
+
+                        button.textContent =
+                            "Submission Closed";
+
+                    }
+
+                    if (fileInput) {
+
+                        fileInput.disabled =
+                            true;
+
+                    }
+
+                }
+
+            }
+        );
+
+    },
+    1000
+);
+
+const savedDashboardSubject =
+    localStorage.getItem(
+        "ams_dashboardSubject"
+    );
+
+if (savedDashboardSubject) {
+
+    currentSubject =
+        savedDashboardSubject;
+
+    localStorage.removeItem(
+        "ams_dashboardSubject"
+    );
+
+}
+
+if (getCurrentUser()) {
+
+    openDashboard();
+
+}
+
+</script>
+
+</body>
+
+</html>
